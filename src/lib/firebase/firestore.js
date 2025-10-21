@@ -1,141 +1,157 @@
+// Import a helper function to generate fake restaurants and reviews for testing
 import { generateFakeRestaurantsAndReviews } from "@/src/lib/fakeRestaurants.js";
 
+// Import various Firestore functions for interacting with the database
 import {
-  collection,
-  onSnapshot,
-  query,
-  getDocs,
-  doc,
-  getDoc,
-  updateDoc,
-  orderBy,
-  Timestamp,
-  runTransaction,
-  where,
-  addDoc,
-  getFirestore,
+  collection,    // Reference a Firestore collection
+  onSnapshot,    // Listen to real-time updates
+  query,         // Create queries with filters/order
+  getDocs,       // Fetch all documents for a query
+  doc,           // Reference a specific document
+  getDoc,        // Fetch a single document
+  updateDoc,     // Update a document's fields
+  orderBy,       // Order query results
+  Timestamp,     // Firebase timestamp type
+  runTransaction,// Run atomic transactions
+  where,         // Add filtering conditions to queries
+  addDoc,        // Add a new document to a collection
+  getFirestore,  // Get a Firestore instance
 } from "firebase/firestore";
 
+// Import the initialized Firestore database instance from the client app
 import { db } from "@/src/lib/firebase/clientApp";
 
+// ----------------------
+// Function to update the photo URL of a restaurant
 export async function updateRestaurantImageReference(
-  restaurantId,
-  publicImageUrl
+  restaurantId,       // ID of the restaurant document
+  publicImageUrl      // URL of the new image
 ) {
-  const restaurantRef = doc(collection(db, "restaurants"), restaurantId);
+  const restaurantRef = doc(collection(db, "restaurants"), restaurantId); // Get doc reference
   if (restaurantRef) {
-    await updateDoc(restaurantRef, { photo: publicImageUrl });
+    await updateDoc(restaurantRef, { photo: publicImageUrl }); // Update the photo field
   }
 }
 
+// Placeholder function for updating restaurant ratings within a transaction
 const updateWithRating = async (
-  transaction,
-  docRef,
-  newRatingDocument,
-  review
+  transaction,      // Firestore transaction object
+  docRef,           // Document reference
+  newRatingDocument,// New rating object
+  review            // Review data
 ) => {
-  return;
+  return; // Function not implemented yet
 };
 
+// Placeholder function to add a review to a restaurant
 export async function addReviewToRestaurant(db, restaurantId, review) {
-  return;
+  return; // Function not implemented yet
 }
 
+// Apply query filters based on search parameters
 function applyQueryFilters(q, { category, city, price, sort }) {
   if (category) {
-    q = query(q, where("category", "==", category));
+    q = query(q, where("category", "==", category)); // Filter by category
   }
   if (city) {
-    q = query(q, where("city", "==", city));
+    q = query(q, where("city", "==", city)); // Filter by city
   }
   if (price) {
-    q = query(q, where("price", "==", price.length));
+    q = query(q, where("price", "==", price.length)); // Filter by price (length?)
   }
   if (sort === "Rating" || !sort) {
-    q = query(q, orderBy("avgRating", "desc"));
+    q = query(q, orderBy("avgRating", "desc")); // Sort by average rating descending
   } else if (sort === "Review") {
-    q = query(q, orderBy("numRatings", "desc"));
+    q = query(q, orderBy("numRatings", "desc")); // Sort by number of reviews descending
   }
-  return q;
+  return q; // Return the filtered query
 }
 
+// ----------------------
+// Fetch restaurants from Firestore based on filters
 export async function getRestaurants(db = db, filters = {}) {
-  let q = query(collection(db, "restaurants"));
-
-  q = applyQueryFilters(q, filters);
-  const results = await getDocs(q);
+  let q = query(collection(db, "restaurants")); // Base query: all restaurants
+  q = applyQueryFilters(q, filters);           // Apply filters
+  const results = await getDocs(q);           // Execute query
   return results.docs.map((doc) => {
     return {
-      id: doc.id,
-      ...doc.data(),
-      // Only plain objects can be passed to Client Components from Server Components
-      timestamp: doc.data().timestamp.toDate(),
+      id: doc.id,                              // Include document ID
+      ...doc.data(),                           // Include all document fields
+      timestamp: doc.data().timestamp.toDate(), // Convert Firestore timestamp to JS Date
     };
   });
 }
 
+// ----------------------
+// Real-time snapshot listener for restaurants
 export function getRestaurantsSnapshot(cb, filters = {}) {
   if (typeof cb !== "function") {
     console.log("Error: The callback parameter is not a function");
     return;
   }
 
-  let q = query(collection(db, "restaurants"));
-  q = applyQueryFilters(q, filters);
+  let q = query(collection(db, "restaurants")); // Base query
+  q = applyQueryFilters(q, filters);           // Apply filters
 
+  // Listen to real-time updates
   return onSnapshot(q, (querySnapshot) => {
     const results = querySnapshot.docs.map((doc) => {
       return {
         id: doc.id,
         ...doc.data(),
-        // Only plain objects can be passed to Client Components from Server Components
-        timestamp: doc.data().timestamp.toDate(),
+        timestamp: doc.data().timestamp.toDate(), // Convert Firestore timestamp to JS Date
       };
     });
 
-    cb(results);
+    cb(results); // Call the callback with updated data
   });
 }
 
+// ----------------------
+// Fetch a single restaurant by ID
 export async function getRestaurantById(db, restaurantId) {
   if (!restaurantId) {
     console.log("Error: Invalid ID received: ", restaurantId);
     return;
   }
-  const docRef = doc(db, "restaurants", restaurantId);
-  const docSnap = await getDoc(docRef);
+  const docRef = doc(db, "restaurants", restaurantId); // Get doc reference
+  const docSnap = await getDoc(docRef);              // Fetch document
   return {
-    ...docSnap.data(),
-    timestamp: docSnap.data().timestamp.toDate(),
+    ...docSnap.data(),                                // Spread document fields
+    timestamp: docSnap.data().timestamp.toDate(),    // Convert timestamp
   };
 }
 
+// Placeholder for getting real-time snapshot of a single restaurant
 export function getRestaurantSnapshotById(restaurantId, cb) {
-  return;
+  return; // Function not implemented yet
 }
 
+// ----------------------
+// Fetch all reviews for a restaurant
 export async function getReviewsByRestaurantId(db, restaurantId) {
   if (!restaurantId) {
     console.log("Error: Invalid restaurantId received: ", restaurantId);
     return;
   }
 
+  // Query the "ratings" subcollection for the restaurant, ordered by timestamp
   const q = query(
     collection(db, "restaurants", restaurantId, "ratings"),
     orderBy("timestamp", "desc")
   );
 
-  const results = await getDocs(q);
+  const results = await getDocs(q); // Fetch documents
   return results.docs.map((doc) => {
     return {
       id: doc.id,
       ...doc.data(),
-      // Only plain objects can be passed to Client Components from Server Components
       timestamp: doc.data().timestamp.toDate(),
     };
   });
 }
 
+// Real-time listener for reviews of a restaurant
 export function getReviewsSnapshotByRestaurantId(restaurantId, cb) {
   if (!restaurantId) {
     console.log("Error: Invalid restaurantId received: ", restaurantId);
@@ -146,12 +162,13 @@ export function getReviewsSnapshotByRestaurantId(restaurantId, cb) {
     collection(db, "restaurants", restaurantId, "ratings"),
     orderBy("timestamp", "desc")
   );
+
+  // Listen to real-time updates and pass results to callback
   return onSnapshot(q, (querySnapshot) => {
     const results = querySnapshot.docs.map((doc) => {
       return {
         id: doc.id,
         ...doc.data(),
-        // Only plain objects can be passed to Client Components from Server Components
         timestamp: doc.data().timestamp.toDate(),
       };
     });
@@ -159,15 +176,19 @@ export function getReviewsSnapshotByRestaurantId(restaurantId, cb) {
   });
 }
 
+// ----------------------
+// Add fake restaurants and reviews to Firestore (for testing/demo purposes)
 export async function addFakeRestaurantsAndReviews() {
-  const data = await generateFakeRestaurantsAndReviews();
+  const data = await generateFakeRestaurantsAndReviews(); // Generate sample data
   for (const { restaurantData, ratingsData } of data) {
     try {
+      // Add restaurant document
       const docRef = await addDoc(
         collection(db, "restaurants"),
         restaurantData
       );
 
+      // Add ratings subcollection for each restaurant
       for (const ratingData of ratingsData) {
         await addDoc(
           collection(db, "restaurants", docRef.id, "ratings"),
