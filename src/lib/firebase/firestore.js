@@ -159,9 +159,27 @@ export async function getRestaurantById(db, restaurantId) {
   };
 }
 
-// Placeholder for getting real-time snapshot of a single restaurant
+// this function is complete in the nextjs-end codebase,
+// but is never introduced in the tutorial steps anywhere, 
+// so it remains non-functional at the end of the tutorial
 export function getRestaurantSnapshotById(restaurantId, cb) {
-  return; // Function not implemented yet
+  if (!restaurantId) {
+    console.log("Error: Invalid ID received: ", restaurantId);
+    return;
+  }
+
+  if (typeof cb !== "function") {
+    console.log("Error: The callback parameter is not a function");
+    return;
+  }
+
+  const docRef = doc(db, "restaurants", restaurantId);
+  return onSnapshot(docRef, (docSnap) => {
+    cb({
+      ...docSnap.data(),
+      timestamp: docSnap.data().timestamp.toDate(),
+    });
+  });
 }
 
 // ----------------------
