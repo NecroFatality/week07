@@ -1,3 +1,6 @@
 runConfig:
   minInstances: 0
   maxInstances: 2
+env:
+  - variable: AIZA_SY_AYNE8M_ZWOB_B3JJ_KMG8Y_GIHQR_UT_XJM0RAG
+    secret: AIzaSyAyne8mZWobB3JjKMg8yGIHQrUtXjm0Rag
