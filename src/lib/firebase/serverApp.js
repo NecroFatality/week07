@@ -8,10 +8,13 @@ import "server-only";
 import { cookies } from "next/headers";
 
 // Import Firebase app initialization functions
-import { initializeServerApp, initializeApp } from "firebase/app";
+import { initializeServerApp } from "firebase/app";
 
 // Import Firebase Auth for authentication
 import { getAuth } from "firebase/auth";
+
+// Import Firebase config
+import firebaseConfig from "./config";
 
 // ----------------------
 // Function to get a Firebase app authenticated for the current user
@@ -25,8 +28,7 @@ export async function getAuthenticatedAppForUser() {
   // This allows server-side code to access Firebase resources as the authenticated user
   // `initializeServerApp` is a server-specific SDK feature
   const firebaseServerApp = initializeServerApp(
-    // Initialize a new Firebase App instance
-    initializeApp(),
+    firebaseConfig,
     {
       authIdToken, // Pass the ID token from the cookie
     }
