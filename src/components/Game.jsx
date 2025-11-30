@@ -1,24 +1,24 @@
 "use client";
 
-// This components shows one individual restaurant
-// It receives data from src/app/restaurant/[id]/page.jsx
+// This component shows one individual game
+// It receives data from src/app/game/[id]/page.jsx
 
 import { React, useState, useEffect, Suspense } from "react";
 import dynamic from "next/dynamic";
-import { getRestaurantSnapshotById } from "@/src/lib/firebase/firestore.js";
+import { getGameSnapshotById } from "@/src/lib/firebase/firestore.js";
 import { useUser } from "@/src/lib/getUser";
-import RestaurantDetails from "@/src/components/RestaurantDetails.jsx";
-import { updateRestaurantImage } from "@/src/lib/firebase/storage.js";
+import GameDetails from "@/src/components/GameDetails.jsx";
+import { updateGameImage } from "@/src/lib/firebase/storage.js";
 
 const ReviewDialog = dynamic(() => import("@/src/components/ReviewDialog.jsx"));
 
-export default function Restaurant({
+export default function Game({
   id,
-  initialRestaurant,
+  initialGame,
   initialUserId,
   children,
 }) {
-  const [restaurantDetails, setRestaurantDetails] = useState(initialRestaurant);
+  const [gameDetails, setGameDetails] = useState(initialGame);
   const [isOpen, setIsOpen] = useState(false);
 
   // The only reason this component needs to know the user ID is to associate a review with the user, and to know whether to show the review dialog
@@ -32,14 +32,14 @@ export default function Restaurant({
     setReview({ ...review, [name]: value });
   };
 
-  async function handleRestaurantImage(target) {
+  async function handleGameImage(target) {
     const image = target.files ? target.files[0] : null;
     if (!image) {
       return;
     }
 
-    const imageURL = await updateRestaurantImage(id, image);
-    setRestaurantDetails({ ...restaurantDetails, photo: imageURL });
+    const imageURL = await updateGameImage(id, image);
+    setGameDetails({ ...gameDetails, photo: imageURL });
   }
 
   const handleClose = () => {
@@ -48,22 +48,22 @@ export default function Restaurant({
   };
 
   useEffect(() => {
-    return getRestaurantSnapshotById(id, (data) => {
-      setRestaurantDetails(data);
+    return getGameSnapshotById(id, (data) => {
+      setGameDetails(data);
     });
   }, [id]);
 
   return (
     <>
-      <RestaurantDetails
-        restaurant={restaurantDetails}
+      <GameDetails
+        game={gameDetails}
         userId={userId}
-        handleRestaurantImage={handleRestaurantImage}
+        handleGameImage={handleGameImage}
         setIsOpen={setIsOpen}
         isOpen={isOpen}
       >
         {children}
-      </RestaurantDetails>
+      </GameDetails>
       {userId && (
         <Suspense fallback={<p>Loading...</p>}>
           <ReviewDialog
@@ -79,3 +79,4 @@ export default function Restaurant({
     </>
   );
 }
+

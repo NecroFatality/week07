@@ -1,6 +1,6 @@
 "use server";
 
-import { addReviewToRestaurant } from "@/src/lib/firebase/firestore.js";
+import { addReviewToGame } from "@/src/lib/firebase/firestore.js";
 import { getAuthenticatedAppForUser } from "@/src/lib/firebase/serverApp.js";
 import { getFirestore } from "firebase/firestore";
 
@@ -15,7 +15,7 @@ export async function handleReviewFormSubmission(data) {
     const db = getFirestore(firebaseServerApp);
     
 
-    await addReviewToRestaurant(db, data.get("restaurantId"), {
+    await addReviewToGame(db, data.get("gameId"), {
             text: data.get("text"),
             rating: data.get("rating"),
 

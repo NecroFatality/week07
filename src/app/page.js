@@ -1,9 +1,9 @@
-// Import the RestaurantListings component from your components folder
-// This component will render the list of restaurants on the page
-import RestaurantListings from "@/src/components/RestaurantListings.jsx";
+// Import the GameListings component from your components folder
+// This component will render the list of games on the page
+import GameListings from "@/src/components/GameListings.jsx";
 
-// Import a helper function that fetches restaurants from Firestore
-import { getRestaurants } from "@/src/lib/firebase/firestore.js";
+// Import a helper function that fetches games from Firestore
+import { getGames } from "@/src/lib/firebase/firestore.js";
 
 // Import a helper to get a server-side authenticated Firebase app
 import { getAuthenticatedAppForUser } from "@/src/lib/firebase/serverApp.js";
@@ -22,14 +22,14 @@ export const dynamic = "force-dynamic";
 // This is a Server Component because it fetches data on the server
 export default async function Home(props) {
   // Extract query parameters from the URL, provided by Next.js
-  // Example URL: /?city=London&category=Indian&sort=Review
+  // Example URL: /?platform=PC&genre=RPG&sort=Review
   const searchParams = await props.searchParams;
 
   // Get a Firebase app instance authenticated for the current user
   const { firebaseServerApp } = await getAuthenticatedAppForUser();
 
-  // Fetch restaurants from Firestore using the authenticated app and search parameters
-  const restaurants = await getRestaurants(
+  // Fetch games from Firestore using the authenticated app and search parameters
+  const games = await getGames(
     getFirestore(firebaseServerApp), // get Firestore instance for the app
     searchParams                     // pass query parameters to filter results
   );
@@ -37,10 +37,10 @@ export default async function Home(props) {
   // Render the main page
   return (
     <main className="main__home">
-      {/* Render the RestaurantListings component with initial data */}
-      <RestaurantListings
-        initialRestaurants={restaurants} // pass fetched restaurants
-        searchParams={searchParams}      // pass search parameters for filtering
+      {/* Render the GameListings component with initial data */}
+      <GameListings
+        initialGames={games}        // pass fetched games
+        searchParams={searchParams} // pass search parameters for filtering
       />
     </main>
   );

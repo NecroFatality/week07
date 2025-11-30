@@ -1,27 +1,27 @@
 "use client";
 
-// This components handles the restaurant listings page
-// It receives data from src/app/page.jsx, such as the initial restaurants and search params from the URL
+// This component handles the game listings page
+// It receives data from src/app/page.jsx, such as the initial games and search params from the URL
 
 import Link from "next/link";
 import { React, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import renderStars from "@/src/components/Stars.jsx";
-import { getRestaurantsSnapshot } from "@/src/lib/firebase/firestore.js";
+import { getGamesSnapshot } from "@/src/lib/firebase/firestore.js";
 import Filters from "@/src/components/Filters.jsx";
 
-const RestaurantItem = ({ restaurant }) => (
-  <li key={restaurant.id}>
-    <Link href={`/restaurant/${restaurant.id}`}>
-      <ActiveResturant restaurant={restaurant} />
+const GameItem = ({ game }) => (
+  <li key={game.id}>
+    <Link href={`/game/${game.id}`}>
+      <ActiveGame game={game} />
     </Link>
   </li>
 );
 
-const ActiveResturant = ({ restaurant }) => (
+const ActiveGame = ({ game }) => (
   <div>
-    <ImageCover photo={restaurant.photo} name={restaurant.name} />
-    <ResturantDetails restaurant={restaurant} />
+    <ImageCover photo={game.photo} name={game.name} />
+    <GameDetails game={game} />
   </div>
 );
 
@@ -31,45 +31,45 @@ const ImageCover = ({ photo, name }) => (
   </div>
 );
 
-const ResturantDetails = ({ restaurant }) => (
+const GameDetails = ({ game }) => (
   <div className="restaurant__details">
-    <h2>{restaurant.name}</h2>
-    <RestaurantRating restaurant={restaurant} />
-    <RestaurantMetadata restaurant={restaurant} />
+    <h2>{game.name}</h2>
+    <GameRating game={game} />
+    <GameMetadata game={game} />
   </div>
 );
 
-const RestaurantRating = ({ restaurant }) => (
+const GameRating = ({ game }) => (
   <div className="restaurant__rating">
-    <ul>{renderStars(restaurant.avgRating)}</ul>
-    <span>({restaurant.numRatings})</span>
+    <ul>{renderStars(game.avgRating)}</ul>
+    <span>({game.numRatings})</span>
   </div>
 );
 
-const RestaurantMetadata = ({ restaurant }) => (
+const GameMetadata = ({ game }) => (
   <div className="restaurant__meta">
     <p>
-      {restaurant.category} | {restaurant.city}
+      {game.genre} | {game.platform}
     </p>
-    <p>{"$".repeat(restaurant.price)}</p>
+    <p>{"$".repeat(game.price)}</p>
   </div>
 );
 
-export default function RestaurantListings({
-  initialRestaurants,
+export default function GameListings({
+  initialGames,
   searchParams,
 }) {
   const router = useRouter();
 
   // The initial filters are the search params from the URL, useful for when the user refreshes the page
   const initialFilters = {
-    city: searchParams.city || "",
-    category: searchParams.category || "",
+    platform: searchParams.platform || "",
+    genre: searchParams.genre || "",
     price: searchParams.price || "",
     sort: searchParams.sort || "",
   };
 
-  const [restaurants, setRestaurants] = useState(initialRestaurants);
+  const [games, setGames] = useState(initialGames);
   const [filters, setFilters] = useState(initialFilters);
 
   useEffect(() => {
@@ -77,8 +77,8 @@ export default function RestaurantListings({
   }, [router, filters]);
 
   useEffect(() => {
-    return getRestaurantsSnapshot((data) => {
-      setRestaurants(data);
+    return getGamesSnapshot((data) => {
+      setGames(data);
     }, filters);
   }, [filters]);
 
@@ -86,8 +86,8 @@ export default function RestaurantListings({
     <article>
       <Filters filters={filters} setFilters={setFilters} />
       <ul className="restaurants">
-        {restaurants.map((restaurant) => (
-          <RestaurantItem key={restaurant.id} restaurant={restaurant} />
+        {games.map((game) => (
+          <GameItem key={game.id} game={game} />
         ))}
       </ul>
     </article>
@@ -106,3 +106,4 @@ function routerWithFilters(router, filters) {
   const queryString = queryParams.toString();
   router.push(`?${queryString}`);
 }
+

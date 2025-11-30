@@ -15,8 +15,8 @@ import {
   onIdTokenChanged,
 } from "@/src/lib/firebase/auth.js";
 
-// Import a helper to add fake restaurants and reviews (for demo/testing)
-import { addFakeRestaurantsAndReviews } from "@/src/lib/firebase/firestore.js";
+// Import a helper to add fake games and reviews (for demo/testing)
+import { addFakeGamesAndReviews } from "@/src/lib/firebase/firestore.js";
 
 // Import cookie management functions from cookies-next
 import { setCookie, deleteCookie } from "cookies-next";
@@ -73,8 +73,8 @@ export default function Header({ initialUser }) {
     <header>
       {/* Logo link to home page */}
       <Link href="/" className="logo">
-        <img src="/friendly-eats.svg" alt="FriendlyEats" />
-        Friendly Eats
+        <img src="/friendly-eats.svg" alt="FriendlyGames" />
+        Friendly Games
       </Link>
 
       {/* If user is signed in */}
@@ -98,10 +98,10 @@ export default function Header({ initialUser }) {
               <ul>
                 <li>{user.displayName}</li>
 
-                {/* Add fake restaurants for testing */}
+                {/* Add fake games for testing */}
                 <li>
-                  <a href="#" onClick={addFakeRestaurantsAndReviews}>
-                    Add sample restaurants
+                  <a href="#" onClick={addFakeGamesAndReviews}>
+                    Add sample games
                   </a>
                 </li>
 

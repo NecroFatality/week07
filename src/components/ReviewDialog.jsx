@@ -1,6 +1,6 @@
 "use client";
 
-// This components handles the review dialog and uses a next.js feature known as Server Actions to handle the form submission
+// This component handles the review dialog and uses a next.js feature known as Server Actions to handle the form submission
 
 import { useEffect, useLayoutEffect, useRef } from "react";
 import RatingPicker from "@/src/components/RatingPicker.jsx";
@@ -58,7 +58,7 @@ const ReviewDialog = ({
             />
           </p>
 
-          <input type="hidden" name="restaurantId" value={id} />
+          <input type="hidden" name="gameId" value={id} />
           <input type="hidden" name="userId" value={userId} />
         </article>
         <footer>
