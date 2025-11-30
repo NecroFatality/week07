@@ -4,18 +4,18 @@ import { getReviewsByGameId } from "@/src/lib/firebase/firestore.js";
 import { getAuthenticatedAppForUser } from "@/src/lib/firebase/serverApp";
 import { getFirestore } from "firebase/firestore";
 
-export async function GeminiSummary({ gameId }) {
+export async function GeminiSummary({ restaurantId }) {
   const { firebaseServerApp } = await getAuthenticatedAppForUser();
-  const reviews = await getReviewsByGameId(
+  const reviews = await getReviewsByRestaurantId(
     getFirestore(firebaseServerApp),
-    gameId
+    restaurantId
   );
 
   const reviewSeparator = "@";
   const prompt = `
-    Based on the following video game reviews, 
+    Based on the following restaurant reviews, 
     where each review is separated by a '${reviewSeparator}' character, 
-    create a one-sentence summary of what players think of the game. 
+    create a one-sentence summary of what people think of the restaurant. 
 
     Here are the reviews: ${reviews.map((review) => review.text).join(reviewSeparator)}
   `;
@@ -23,7 +23,7 @@ export async function GeminiSummary({ gameId }) {
   try {
     if (!process.env.GEMINI_API_KEY) {
       // Make sure GEMINI_API_KEY environment variable is set:
-      // https://firebase.google.com/docs/genkit/get-started
+      // https://genkit.dev/docs/get-started/
       throw new Error(
         'GEMINI_API_KEY not set. Set it with "firebase apphosting:secrets:set GEMINI_API_KEY"'
       );
